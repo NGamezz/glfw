@@ -17,46 +17,49 @@ pub fn build(b: *std.Build) void {
     const use_gles = b.option(bool, "gles", "Build with GLES; not supported on MacOS") orelse false;
     const use_metal = b.option(bool, "metal", "Build with Metal; only supported on MacOS") orelse false;
 
-    const lib: *std.Build.Step.Compile = switch (shared) {
-        inline else => |x| switch (x) {
-            false => std.Build.addStaticLibrary,
-            true => std.Build.addSharedLibrary,
-        }(b, .{
-            .name = "glfw",
-            .target = target,
-            .optimize = optimize,
-        }),
-    };
+    const root_module = b.createModule(.{
+        .target = target,
+        .optimize = optimize,
+        .link_libc = true,
+    });
+
+    const lib = b.addLibrary(.{
+        .name = "glfw",
+        .root_module = root_module,
+    });
+
     lib.addIncludePath(b.path("include"));
-    //if (include_src) lib.addIncludePath(b.path("src"));
-    lib.linkLibC();
 
     if (shared) lib.root_module.addCMacro("_GLFW_BUILD_DLL", "1");
 
     lib.installHeadersDirectory(b.path("include/GLFW"), "GLFW", .{});
+
     if (include_src) {
         lib.installHeadersDirectory(b.path("src/"), "GLFW", .{});
         // To maintain the relative paths inside the files in src/
         lib.installHeadersDirectory(b.path("include/GLFW"), "include/GLFW", .{});
     }
-    //
-    // Header packaging for easy cross compilation
-    //
+
     if (!native) {
-        if (b.lazyDependency("vulkan_headers", .{
+        const dep_options = .{
             .target = target,
             .optimize = optimize,
-        })) |dep| {
+        };
+
+        const vulkan_dep = b.lazyDependency("vulkan_headers", dep_options);
+
+        if (vulkan_dep) |dep| {
             lib.installLibraryHeaders(dep.artifact("vulkan-headers"));
         }
+
         if (target.result.os.tag == .linux) {
-            if (b.lazyDependency("x11_headers", .{
-                .target = target,
-                .optimize = optimize,
-            })) |dep| {
+            const x11_dep = b.lazyDependency("x11_headers", dep_options);
+
+            if (x11_dep) |dep| {
                 lib.linkLibrary(dep.artifact("x11-headers"));
                 lib.installLibraryHeaders(dep.artifact("x11-headers"));
             }
+
             if (b.lazyDependency("wayland_headers", .{})) |dep| {
                 lib.addIncludePath(dep.path("wayland"));
                 lib.addIncludePath(dep.path("wayland-protocols"));
@@ -69,10 +72,9 @@ pub fn build(b: *std.Build) void {
             // MacOS: this must be defined for macOS 13.3 and older.
             lib.root_module.addCMacro("__kernel_ptr_semantics", "");
 
-            if (b.lazyDependency("xcode_frameworks", .{
-                .target = target,
-                .optimize = optimize,
-            })) |dep| {
+            const xcode_dep = b.lazyDependency("xcode_frameworks", dep_options);
+
+            if (xcode_dep) |dep| {
                 lib.root_module.addSystemFrameworkPath(dep.path("Frameworks"));
                 lib.root_module.addSystemIncludePath(dep.path("include"));
                 lib.root_module.addLibraryPath(dep.path("lib"));
@@ -86,6 +88,7 @@ pub fn build(b: *std.Build) void {
     lib.addCSourceFiles(.{
         .files = &base_sources,
     });
+
     switch (target.result.os.tag) {
         .windows => {
             lib.linkSystemLibrary("gdi32");
@@ -101,6 +104,7 @@ pub fn build(b: *std.Build) void {
             }
 
             lib.root_module.addCMacro("_GLFW_WIN32", "1");
+
             lib.addCSourceFiles(.{
                 .files = &windows_sources,
             });
@@ -133,6 +137,7 @@ pub fn build(b: *std.Build) void {
             }
 
             lib.root_module.addCMacro("_GLFW_COCOA", "1");
+
             lib.addCSourceFiles(.{
                 .files = &macos_sources,
             });
@@ -163,6 +168,7 @@ pub fn build(b: *std.Build) void {
             }
         },
     }
+
     b.installArtifact(lib);
 }
 
