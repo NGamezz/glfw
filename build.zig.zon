@@ -16,7 +16,7 @@
             .lazy = true,
         },
         .vulkan_headers = .{
-            .url = "https://github.com/Batres3/vulkan-headers/archive/16dd91847f1b4ad2ac12578abca7596c3cecdab6.zip",
+            .url = "https://github.com/NGamezz/vulkan-headers/archive/refs/heads/main.zip",
             .hash = "N-V-__8AAP4fFgE5rrh9TTp1H6c3Zqao6Cb_OYmRHQrOr4pY",
             .lazy = true,
         },
