@@ -17,7 +17,7 @@
         },
         .vulkan_headers = .{
             .url = "https://github.com/NGamezz/vulkan-headers/archive/refs/heads/main.zip",
-            .hash = "N-V-__8AAP4fFgE5rrh9TTp1H6c3Zqao6Cb_OYmRHQrOr4pY",
+            .hash = "N-V-__8AACwWFgHkamSgZ_4I31f6Y7eohY84YIX5cZFuv1to",
             .lazy = true,
         },
         .wayland_headers = .{
