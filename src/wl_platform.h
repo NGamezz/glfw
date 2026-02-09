@@ -24,6 +24,7 @@
 //
 //========================================================================
 
+#include "xkb_unicode.h"
 #include <wayland-client-core.h>
 #include <xkbcommon/xkbcommon.h>
 #include <xkbcommon/xkbcommon-compose.h>
