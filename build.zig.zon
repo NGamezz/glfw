@@ -10,25 +10,21 @@
         "LICENSE.md",
     },
     .dependencies = .{
-        .xcode_frameworks = .{
-            .url = "https://github.com/hexops/xcode-frameworks/archive/8a1cfb373587ea4c9bb1468b7c986462d8d4e10e.zip",
-            .hash = "N-V-__8AALShqgXkvqYU6f__FrA22SMWmi2TXCJjNTO1m8XJ",
-            .lazy = true,
+        .wayland_headers = .{
+            .url = "git+https://github.com/Batres3/wayland-headers#d92c130e336cc8ec20e8d45ab51ac78b2c335fcd",
+            .hash = "N-V-__8AANr8CgAR4WXamb1peT1An5-BIgtkreLny4NNVnO_",
         },
         .vulkan_headers = .{
-            .url = "https://github.com/NGamezz/vulkan-headers/archive/refs/heads/main.zip",
+            .url = "git+https://github.com/NGamezz/vulkan-headers#602d051f241129cfbf50b547d6aaeb81622dfd9d",
             .hash = "N-V-__8AACwWFgHkamSgZ_4I31f6Y7eohY84YIX5cZFuv1to",
-            .lazy = true,
         },
-        .wayland_headers = .{
-            .url = "https://github.com/Batres3/wayland-headers/archive/190b247ebc85546752dcf0255070fe835e2262b8.tar.gz",
-            .hash = "N-V-__8AALvXCgD7AaGEzoGpZFSnomVUd9osYPJN3P4jxxj9",
-            .lazy = true,
+        .xcode_frameworks = .{
+            .url = "git+https://github.com/hexops/xcode-frameworks#8a1cfb373587ea4c9bb1468b7c986462d8d4e10e",
+            .hash = "N-V-__8AALShqgXkvqYU6f__FrA22SMWmi2TXCJjNTO1m8XJ",
         },
         .x11_headers = .{
-            .url = "https://github.com/Batres3/x11-headers/archive/80dba49598570c241d2c0ba5ac045a2951d45cad.zip",
-            .hash = "N-V-__8AABeUQgAUPAOubtaj8TZjdxYJ1rGLi4xxLDErTFwt",
-            .lazy = true,
+            .url = "git+https://github.com/Batres3/x11-headers#d85c0aed3f1ecc138c994ae00bb745c4cba9e574",
+            .hash = "N-V-__8AAIyUQgB3B5VLoRxZ6OIasJUeaUSD3c6U2Tjhe7TZ",
         },
     },
 }
