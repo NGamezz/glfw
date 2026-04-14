@@ -28,9 +28,9 @@ pub fn build(b: *std.Build) void {
         .root_module = root_module,
     });
 
-    lib.addIncludePath(b.path("include"));
+    root_module.addIncludePath(b.path("include"));
 
-    if (shared) lib.root_module.addCMacro("_GLFW_BUILD_DLL", "1");
+    if (shared) root_module.addCMacro("_GLFW_BUILD_DLL", "1");
 
     lib.installHeadersDirectory(b.path("include/GLFW"), "GLFW", .{});
 
@@ -56,13 +56,13 @@ pub fn build(b: *std.Build) void {
             const x11_dep = b.lazyDependency("x11_headers", dep_options);
 
             if (x11_dep) |dep| {
-                lib.linkLibrary(dep.artifact("x11-headers"));
+                root_module.linkLibrary(dep.artifact("x11-headers"));
                 lib.installLibraryHeaders(dep.artifact("x11-headers"));
             }
 
             if (b.lazyDependency("wayland_headers", .{})) |dep| {
-                lib.addIncludePath(dep.path("wayland"));
-                lib.addIncludePath(dep.path("wayland-protocols"));
+                root_module.addIncludePath(dep.path("wayland"));
+                root_module.addIncludePath(dep.path("wayland-protocols"));
                 lib.installHeadersDirectory(dep.path("wayland"), ".", .{});
                 lib.installHeadersDirectory(dep.path("wayland-protocols"), ".", .{});
             }
@@ -70,14 +70,14 @@ pub fn build(b: *std.Build) void {
 
         if (target.result.os.tag.isDarwin()) {
             // MacOS: this must be defined for macOS 13.3 and older.
-            lib.root_module.addCMacro("__kernel_ptr_semantics", "");
+            root_module.addCMacro("__kernel_ptr_semantics", "");
 
             const xcode_dep = b.lazyDependency("xcode_frameworks", dep_options);
 
             if (xcode_dep) |dep| {
-                lib.root_module.addSystemFrameworkPath(dep.path("Frameworks"));
-                lib.root_module.addSystemIncludePath(dep.path("include"));
-                lib.root_module.addLibraryPath(dep.path("lib"));
+                root_module.addSystemFrameworkPath(dep.path("Frameworks"));
+                root_module.addSystemIncludePath(dep.path("include"));
+                root_module.addLibraryPath(dep.path("lib"));
             }
         }
     }
@@ -85,81 +85,81 @@ pub fn build(b: *std.Build) void {
     //
     // Source files
     //
-    lib.addCSourceFiles(.{
+    root_module.addCSourceFiles(.{
         .files = &base_sources,
     });
 
     switch (target.result.os.tag) {
         .windows => {
-            lib.linkSystemLibrary("gdi32");
-            lib.linkSystemLibrary("user32");
-            lib.linkSystemLibrary("shell32");
+            root_module.linkSystemLibrary("gdi32", .{});
+            root_module.linkSystemLibrary("user32", .{});
+            root_module.linkSystemLibrary("shell32", .{});
 
             if (use_opengl) {
-                lib.linkSystemLibrary("opengl32");
+                root_module.linkSystemLibrary("opengl32", .{});
             }
 
             if (use_gles) {
-                lib.linkSystemLibrary("GLESv3");
+                root_module.linkSystemLibrary("GLESv3", .{});
             }
 
-            lib.root_module.addCMacro("_GLFW_WIN32", "1");
+            root_module.addCMacro("_GLFW_WIN32", "1");
 
-            lib.addCSourceFiles(.{
+            root_module.addCSourceFiles(.{
                 .files = &windows_sources,
             });
         },
         .macos => {
             // Transitive dependencies, explicit linkage of these works around
             // ziglang/zig#17130
-            lib.linkFramework("CFNetwork");
-            lib.linkFramework("ApplicationServices");
-            lib.linkFramework("ColorSync");
-            lib.linkFramework("CoreText");
-            lib.linkFramework("ImageIO");
+            root_module.linkFramework("CFNetwork", .{});
+            root_module.linkFramework("ApplicationServices", .{});
+            root_module.linkFramework("ColorSync", .{});
+            root_module.linkFramework("CoreText", .{});
+            root_module.linkFramework("ImageIO", .{});
 
             // Direct dependencies
-            lib.linkSystemLibrary("objc");
-            lib.linkFramework("IOKit");
-            lib.linkFramework("CoreFoundation");
-            lib.linkFramework("AppKit");
-            lib.linkFramework("CoreServices");
-            lib.linkFramework("CoreGraphics");
-            lib.linkFramework("Foundation");
-            lib.linkFramework("QuartzCore");
+            root_module.linkSystemLibrary("objc", .{});
+            root_module.linkFramework("IOKit", .{});
+            root_module.linkFramework("CoreFoundation", .{});
+            root_module.linkFramework("AppKit", .{});
+            root_module.linkFramework("CoreServices", .{});
+            root_module.linkFramework("CoreGraphics", .{});
+            root_module.linkFramework("Foundation", .{});
+            root_module.linkFramework("QuartzCore", .{});
 
             if (use_metal) {
-                lib.linkFramework("Metal");
+                root_module.linkFramework("Metal", .{});
             }
 
             if (use_opengl) {
-                lib.linkFramework("OpenGL");
+                root_module.linkFramework("OpenGL", .{});
             }
 
-            lib.root_module.addCMacro("_GLFW_COCOA", "1");
+            root_module.addCMacro("_GLFW_COCOA", "1");
 
-            lib.addCSourceFiles(.{
+            root_module.addCSourceFiles(.{
                 .files = &macos_sources,
             });
         },
 
         // everything that isn't windows or mac is linux :P
         else => {
-            lib.addCSourceFiles(.{
+            root_module.addCSourceFiles(.{
                 .files = &linux_sources,
             });
 
             if (use_x11) {
-                lib.root_module.addCMacro("_GLFW_X11", "1");
-                lib.addCSourceFiles(.{
+                root_module.addCMacro("_GLFW_X11", "1");
+                root_module.addCSourceFiles(.{
                     .files = &linux_x11_sources,
                 });
             }
 
             if (use_wl) {
-                lib.root_module.addCMacro("_GLFW_WAYLAND", "1");
+                root_module.addCMacro("_GLFW_WAYLAND", "1");
 
-                lib.addCSourceFiles(.{
+                root_module.addCSourceFiles(.{
                     .files = &linux_wl_sources,
                     .flags = &.{
                         "-Wno-implicit-function-declaration",
